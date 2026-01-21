@@ -1,87 +1,133 @@
-# abide-connectivity-analysis
-Data preprocessing and functional connectivity analysis of resting-state fMRI data from the ABIDE dataset.
+# ABIDE Connectivity Analysis
 
-ABIDE Connectivity Analysis
-Overview
+## **Project Overview**
+This repository contains an ongoing neuroimaging research project analyzing resting-state fMRI data from the **Autism Brain Imaging Data Exchange (ABIDE)**. The study focuses on identifying functional connectivity differences between individuals with **Autism Spectrum Disorder (ASD)** and typically developing controls, with a specific emphasis on the **Default Mode Network (DMN)**.
 
-This repository contains an ongoing neuroimaging research project analyzing large-scale resting-state fMRI data from the Autism Brain Imaging Data Exchange (ABIDE). The project focuses on functional connectivity patterns, with particular emphasis on Default Mode Network (DMN) regions, using reproducible data preprocessing and analysis pipelines.
+The primary objective of this project is to design a **reproducible data pipeline** that transforms large-scale, multi-site neuroimaging data into structured connectivity features suitable for statistical analysis and machine learning.
 
-The goal of this repository is to document the data engineering, preprocessing, and feature-extraction workflow that prepares multi-site neuroimaging data for statistical analysis and machine learning.
+---
 
-Dataset
+## **Dataset**
+- **Source:** Autism Brain Imaging Data Exchange (ABIDE)
+- **Modality:** Resting-state fMRI (rs-fMRI)
+- **Data Access:** `nilearn.datasets.fetch_abide_pcp`
+- **Preprocessing Pipeline:** CPAC  
+  - Motion correction  
+  - Slice timing correction  
+  - Normalization to MNI space
+    
+- **Quality Control:** Only quality-checked subjects are included
 
-Source: Autism Brain Imaging Data Exchange (ABIDE)
+### **Final Sample**
+- **Total subjects:** 871  
+  - ASD: 403  
+  - Control: 468  
 
-Modality: Resting-state functional MRI (rs-fMRI)
+### **Phenotypic Variables Used**
+- `DX_GROUP` (ASD vs Control)
+- `AGE_AT_SCAN`
+- `SEX`
 
-Characteristics:
+---
 
-Multi-site dataset with heterogeneous scanning protocols
+## **Default Mode Network (DMN) Definition**
+The Default Mode Network is defined based on convergent findings from prior literature. Core DMN regions examined in this project include:
+- **Medial Prefrontal Cortex (mPFC)**
+- **Posterior Cingulate Cortex / Precuneus (PCC)**
+- **Inferior Parietal Lobule (IPL)**
 
-Large sample size
+---
 
-Includes phenotypic and demographic metadata
+## **Atlas and ROI Selection**
+- **Atlas:** Schaefer 2018 Local-Global Functional Atlas
+- **Parameters:**
+  - 200 cortical parcels  
+  - 7 functional networks  
+  - 2 mm spatial resolution  
 
-Only quality-checked, preprocessed data are used in this project.
+Using this atlas, **16 regions of interest (ROIs)** corresponding to DMN subregions were selected across both hemispheres, including subdivisions of:
+- `PFCmp`
+- `pCunPCC`
+- `Default_Par`
 
-Methods (High-Level)
+---
 
-This repository emphasizes pipeline design and data handling, rather than final results.
+## **Time-Series Extraction**
+Regional time-series signals are extracted for each subject using:
 
-Current components include:
+- `nilearn.maskers.NiftiLabelsMasker`
 
-Data loading and quality filtering
+This step:
+- Applies the selected DMN ROIs as a mask
+- Excludes non-DMN regions
+- Outputs a matrix of **timepoints × 16 ROIs** per subject
 
-Alignment of imaging data with phenotypic metadata
+---
 
-Identification of Default Mode Network regions using a functional brain atlas
+## **Functional Connectivity Analysis**
+Functional connectivity is computed using:
+- **Pearson correlation**
+- `nilearn.connectome.ConnectivityMeasure`
 
-Extraction of regional time-series signals
+For each subject, a **16 × 16 connectivity matrix** is generated, representing pairwise correlations between DMN regions.
 
-Construction of functional connectivity matrices
+---
 
-Preparation of connectivity features for downstream statistical testing and machine learning
+## **Statistical Analysis**
+Group-level differences between ASD and control participants are assessed using **Welch’s t-tests**, which account for unequal variances and sample sizes.
 
-Tools & Technologies
+- Each ROI-to-ROI connection is tested independently
+- **Negative t-values:** hypo-connectivity in ASD
+- **Positive t-values:** hyper-connectivity in ASD
 
-Language: Python
+Preliminary results indicate widespread **hypo-connectivity between anterior (mPFC) and posterior (PCC/precuneus) DMN regions** in ASD.
 
-Libraries:
+---
 
-Nilearn
+## **Visualization**
+Results are visualized using:
+- Connectivity matrices
+- T-statistic plots
+- Brain maps highlighting DMN ROIs
 
-NumPy
+Visualizations are used for interpretation and exploratory analysis rather than final conclusions.
 
-SciPy
+---
 
-scikit-learn
+## **Machine Learning (In Progress)**
+Planned extensions of this project include:
+- Feature extraction from connectivity matrices
+- Support Vector Machine (SVM) classification
+- Hyperparameter optimization using `RandomizedSearchCV`
+- Multiple kernels (linear, RBF, polynomial, sigmoid)
+- Cross-validated evaluation metrics (accuracy, F1 score, balanced accuracy, ROC AUC)
 
-Matplotlib
+---
 
-Environment: Jupyter Notebooks
+## **Tools & Environment**
+- **Language:** Python
+- **Libraries:**
+  - Nilearn
+  - NumPy
+  - SciPy
+  - scikit-learn
+  - Matplotlib
+- **Environment:** Jupyter Notebook
 
-Project Status
+---
 
-!! Ongoing research project
+## **Project Status**
+ **Ongoing Research**
 
-This repository is actively under development. Analyses, documentation, and structure may evolve as the research progresses. Final results and interpretations are intentionally not included at this stage.
+This repository reflects an active research project. Analyses, documentation, and structure may evolve as the study progresses. Final results are intentionally not included at this stage.
 
-Reproducibility & Ethics
+---
 
-All analyses prioritize reproducibility and transparent data processing.
+## **Ethics & Data Use**
+- No raw neuroimaging data are stored in this repository
+- All analyses follow ABIDE data-sharing guidelines
+---
 
-No raw neuroimaging data are stored in this repository.
-
-The project adheres to ABIDE data usage guidelines and research ethics standards.
-
-Future Directions
-
-Planned extensions include:
-
-Expanded feature engineering for machine learning models
-
-Cross-validated classification experiments
-
-Subgroup analyses based on demographic variables
-
-Additional documentation and visualization tools
+## **Author**
+**Elif Nalan Mutlu**  
+Undergraduate Researcher
